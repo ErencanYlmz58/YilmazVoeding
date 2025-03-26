@@ -2,13 +2,14 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
+
 // Basis URL voor API requests - dynamisch o.b.v. environment
 const getApiUrl = () => {
   if (__DEV__) {
     // Gebruik de juiste poort en protocol
     return Platform.OS === 'ios' 
-      ? 'https://localhost:54645/api'
-      : 'https://10.0.2.2:54645/api'; 
+      ? 'http://localhost:54646/api'
+      : 'http://10.0.2.2:54646/api'; 
   }
   return 'https://api.yilmazvoeding.com/api'; // Productie URL
 };
@@ -22,10 +23,6 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-   // SSL-verificatie uitschakelen voor development
-   httpsAgent: new https.Agent({  
-    rejectUnauthorized: false
-  }),
 });
 
 // Interceptor voor auth tokens toevoegen aan requests

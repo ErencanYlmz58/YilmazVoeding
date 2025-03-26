@@ -12,6 +12,6 @@ namespace YilmazVoeding.Core.Models
         public string PostalCode { get; set; }
         public string City { get; set; }
         public DateTime CreatedAt { get; set; }
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     }
 }
