@@ -1,0 +1,168 @@
+/* Large Desktop (1200px and up) */
+@media (min-width: 1200px) {
+    .container {
+        padding: 0 30px;
+    }
+}
+
+/* Tablet en Desktop */
+@media (max-width: 1199px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Tablets en kleine desktops (992px en lager) */
+@media (max-width: 992px) {
+    .about-content {
+        flex-direction: column;
+    }
+    
+    .about-text {
+        padding-right: 0;
+        margin-bottom: 2rem;
+    }
+    
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Tablets en grote mobiele apparaten (768px en lager) */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: block;
+    }
+    
+    .main-nav {
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        height: 0;
+        overflow: hidden;
+        background-color: white;
+        transition: height 0.3s;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .main-nav.active {
+        height: auto;
+    }
+    
+    .main-nav ul {
+        display: block;
+        padding: 20px;
+    }
+    
+    .main-nav ul li {
+        margin-left: 0;
+        margin-bottom: 15px;
+    }
+    
+    .main-nav ul li a {
+        display: block;
+        padding: 10px 0;
+    }
+    
+    .hero {
+        padding: 3rem 0;
+    }
+    
+    .categories-grid,
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .product-actions {
+        flex-direction: column;
+    }
+    
+    .product-actions .btn-view-details {
+        margin-right: 0;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    
+    .about-section,
+    .categories-section,
+    .featured-products {
+        padding: 3rem 0;
+    }
+}
+
+/* Mobiele apparaten (576px en lager) */
+@media (max-width: 576px) {
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .categories-grid,
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .user-actions a {
+        margin-left: 15px;
+    }
+    
+    .logo img {
+        height: 40px;
+    }
+    
+    .header-content {
+        padding: 10px 0;
+    }
+    
+    .main-nav {
+        top: 60px;
+    }
+}
+
+/* Zeer kleine mobiele apparaten (375px en lager) */
+@media (max-width: 375px) {
+    .btn-primary,
+    .btn-secondary {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .hero {
+        padding: 2rem 0;
+    }
+    
+    .user-actions .btn-login span {
+        display: none;
+    }
+    
+    .categories-section,
+    .featured-products,
+    .about-section {
+        padding: 2rem 0;
+    }
+}

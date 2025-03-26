@@ -1,0 +1,3 @@
+node_modules/     # Als je npm gebruikt voor build tools
+dist/             # Indien je bundelt
+.env              # Als je geheime keys gebruikt

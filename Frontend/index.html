@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yilmaz Voeding - Supermarkt in Lokeren</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <!-- Font Awesome voor iconen -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header met navigatie -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="assets/images/logo.png" alt="Yilmaz Voeding Logo">
+                    </a>
+                </div>
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html" class="active">Home</a></li>
+                        <li><a href="pages/categories.html">Categorieën</a></li>
+                        <li><a href="pages/products.html">Producten</a></li>
+                    </ul>
+                </nav>
+                <div class="user-actions">
+                    <a href="pages/login.html" class="btn-login"><i class="fas fa-user"></i> Inloggen</a>
+                    <a href="pages/cart.html" class="btn-cart"><i class="fas fa-shopping-cart"></i> <span class="cart-count">0</span></a>
+                </div>
+                <button class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero sectie -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Welkom bij Yilmaz Voeding</h1>
+                <p>Uw betrouwbare supermarkt in Lokeren met een uitgebreid assortiment aan verse producten.</p>
+                <a href="pages/products.html" class="btn-primary">Bekijk ons assortiment</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categorieën sectie -->
+    <section class="categories-section">
+        <div class="container">
+            <h2 class="section-title">Onze categorieën</h2>
+            <div class="categories-grid" id="categories-container">
+                <!-- Categorieën worden hier dynamisch geladen via JavaScript -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Aanbevolen producten sectie -->
+    <section class="featured-products">
+        <div class="container">
+            <h2 class="section-title">Aanbevolen producten</h2>
+            <div class="products-grid" id="featured-products-container">
+                <!-- Producten worden hier dynamisch geladen via JavaScript -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Over ons sectie -->
+    <section class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Over Yilmaz Voeding</h2>
+                    <p>Yilmaz Voeding is een lokale supermarkt in Lokeren die bekend staat om zijn kwaliteitsproducten en uitstekende service. Wij streven ernaar om onze klanten de beste winkelbeleving te bieden met een breed assortiment aan verse en hoogwaardige producten.</p>
+                    <p>Ons team staat altijd klaar om u te helpen en te adviseren bij uw aankopen. Bezoek ons in de winkel of bestel eenvoudig online voor bezorging of afhaling.</p>
+                </div>
+                <div class="about-image">
+                    <img src="assets/images/store.jpg" alt="Yilmaz Voeding Winkel">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>Yilmaz Voeding</h3>
+                    <p>Uw lokale supermarkt in Lokeren</p>
+                    <p>Kerkstraat 123<br>9160 Lokeren</p>
+                    <p>Tel: 09 123 45 67<br>E-mail: info@yilmazvoeding.com</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Navigatie</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pages/categories.html">Categorieën</a></li>
+                        <li><a href="pages/products.html">Producten</a></li>
+                        <li><a href="pages/cart.html">Winkelwagen</a></li>
+                        <li><a href="pages/login.html">Mijn account</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Openingsuren</h3>
+                    <ul class="opening-hours">
+                        <li><span>Maandag - Vrijdag:</span> 8:00 - 19:00</li>
+                        <li><span>Zaterdag:</span> 8:00 - 18:00</li>
+                        <li><span>Zondag:</span> 8:00 - 12:00</li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Volg ons</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Yilmaz Voeding. Alle rechten voorbehouden.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/categories.js"></script>
+    <script src="assets/js/products.js"></script>
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
