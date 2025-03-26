@@ -515,3 +515,121 @@ img {
     font-size: 3rem;
     color: var(--secondary-color);
 }
+
+/* Notificatie stijlen */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 350px;
+}
+
+.notification {
+    background-color: white;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification p {
+    margin: 0;
+    padding-right: 10px;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.notification-close:hover {
+    color: var(--primary-color);
+}
+
+/* Statuslabels voor bestellingen */
+.status-pending {
+    color: #f39c12;
+}
+
+.status-processing {
+    color: #3498db;
+}
+
+.status-shipped {
+    color: #2ecc71;
+}
+
+.status-delivered {
+    color: #27ae60;
+}
+
+.status-cancelled {
+    color: #e74c3c;
+}
+
+/* Form validatie stijlen */
+.form-group.error input {
+    border-color: var(--error-color);
+}
+
+.form-group .error-message {
+    color: var(--error-color);
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.form-group.error .error-message {
+    display: block;
+}
+
+/* Breadcrumbs navigatie */
+.breadcrumbs {
+    padding: 15px 0;
+    background-color: #f8f9fa;
+    margin-bottom: 30px;
+}
+
+.breadcrumbs ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumbs li {
+    display: flex;
+    align-items: center;
+}
+
+.breadcrumbs li:not(:last-child):after {
+    content: '/';
+    margin: 0 10px;
+    color: #ccc;
+}
+
+.breadcrumbs a {
+    color: var(--secondary-color);
+}
+
+.breadcrumbs li:last-child a {
+    color: var(--text-color);
+    font-weight: 500;
+    pointer-events: none;
+}

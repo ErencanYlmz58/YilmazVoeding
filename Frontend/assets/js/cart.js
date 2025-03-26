@@ -13,6 +13,12 @@ const cart = (function() {
                 const parsedCart = JSON.parse(storedCart);
                 cartItems = parsedCart.items || [];
                 cartTotal = parsedCart.total || 0;
+                
+                // Valideer cart items
+                cartItems = cartItems.filter(item => validateCartItem(item));
+                
+                // Bereken total opnieuw om zeker te zijn dat het klopt
+                calculateTotal();
             } catch (e) {
                 console.error('Error parsing cart from localStorage:', e);
                 cartItems = [];
@@ -21,14 +27,37 @@ const cart = (function() {
         }
     }
     
+    // Valideer cart item
+    function validateCartItem(item) {
+        return (
+            item &&
+            typeof item === 'object' &&
+            typeof item.id === 'number' &&
+            typeof item.name === 'string' &&
+            typeof item.price === 'number' &&
+            typeof item.quantity === 'number' &&
+            item.quantity > 0
+        );
+    }
+    
     // Cart opslaan in local storage
     function saveCart() {
         const cartData = {
             items: cartItems,
             total: cartTotal
         };
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
-        updateCartBadge();
+        
+        try {
+            localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
+            updateCartBadge();
+        } catch (e) {
+            console.error('Error saving cart to localStorage:', e);
+            
+            // Toon foutmelding als localStorage vol is
+            if (e.name === 'QuotaExceededError') {
+                showNotification('De winkelwagen kon niet worden opgeslagen. Probeer enkele items te verwijderen.', 'error');
+            }
+        }
     }
     
     // Totaalbedrag van de winkelwagen berekenen
@@ -45,6 +74,13 @@ const cart = (function() {
         if (cartCountElement) {
             const itemCount = cartItems.reduce((count, item) => count + item.quantity, 0);
             cartCountElement.textContent = itemCount;
+            
+            // Toon of verberg badge op basis van aantal items
+            if (itemCount > 0) {
+                cartCountElement.style.display = 'flex';
+            } else {
+                cartCountElement.style.display = 'none';
+            }
         }
     }
     
@@ -61,8 +97,14 @@ const cart = (function() {
                     <a href="products.html" class="btn-primary">Producten bekijken</a>
                 </div>
             `;
-            document.getElementById('cart-totals').style.display = 'none';
-            document.getElementById('checkout-button').style.display = 'none';
+            
+            // Verberg totalen en checkout knop
+            const cartTotals = document.getElementById('cart-totals');
+            const checkoutButton = document.getElementById('checkout-button');
+            
+            if (cartTotals) cartTotals.style.display = 'none';
+            if (checkoutButton) checkoutButton.style.display = 'none';
+            
             return;
         }
         
@@ -79,14 +121,14 @@ const cart = (function() {
                         <p class="price">€${item.price.toFixed(2)}</p>
                     </div>
                     <div class="cart-item-quantity">
-                        <button class="btn-decrease">-</button>
+                        <button class="btn-decrease" ${item.quantity <= 1 ? 'disabled' : ''}>-</button>
                         <span>${item.quantity}</span>
                         <button class="btn-increase">+</button>
                     </div>
                     <div class="cart-item-total">
                         <p>€${(item.price * item.quantity).toFixed(2)}</p>
                     </div>
-                    <button class="btn-remove">
+                    <button class="btn-remove" aria-label="Verwijder item">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -105,21 +147,28 @@ const cart = (function() {
         // Event listeners toevoegen
         addCartEventListeners();
         
-        // Checkout knop tonen
-        document.getElementById('cart-totals').style.display = 'block';
-        document.getElementById('checkout-button').style.display = 'block';
+        // Checkout sectie tonen
+        const cartTotals = document.getElementById('cart-totals');
+        const checkoutButton = document.getElementById('checkout-button');
+        
+        if (cartTotals) cartTotals.style.display = 'block';
+        if (checkoutButton) checkoutButton.style.display = 'block';
     }
     
     // Event listeners toevoegen aan de winkelwagen items
     function addCartEventListeners() {
         // Event listener voor hoeveelheid verminderen
         document.querySelectorAll('.btn-decrease').forEach(button => {
-            button.addEventListener('click', function() {
-                const cartItem = this.closest('.cart-item');
-                const productId = parseInt(cartItem.dataset.id);
-                decreaseQuantity(productId);
-                displayCartItems();
-            });
+            if (button.hasAttribute('disabled')) {
+                button.classList.add('disabled');
+            } else {
+                button.addEventListener('click', function() {
+                    const cartItem = this.closest('.cart-item');
+                    const productId = parseInt(cartItem.dataset.id);
+                    cart.decreaseQuantity(productId);
+                    displayCartItems();
+                });
+            }
         });
         
         // Event listener voor hoeveelheid verhogen
@@ -127,7 +176,7 @@ const cart = (function() {
             button.addEventListener('click', function() {
                 const cartItem = this.closest('.cart-item');
                 const productId = parseInt(cartItem.dataset.id);
-                increaseQuantity(productId);
+                cart.increaseQuantity(productId);
                 displayCartItems();
             });
         });
@@ -137,9 +186,67 @@ const cart = (function() {
             button.addEventListener('click', function() {
                 const cartItem = this.closest('.cart-item');
                 const productId = parseInt(cartItem.dataset.id);
-                removeFromCart(productId);
-                displayCartItems();
+                
+                // Bevestiging vragen voor verwijderen
+                if (confirm('Weet je zeker dat je dit product wilt verwijderen?')) {
+                    cart.removeFromCart(productId);
+                    displayCartItems();
+                }
             });
+        });
+    }
+    
+    // Notificatie tonen
+    function showNotification(message, type = 'success') {
+        // Check of notificatie container bestaat, zo niet, maak deze aan
+        let notificationContainer = document.querySelector('.notification-container');
+        
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.classList.add('notification-container');
+            document.body.appendChild(notificationContainer);
+        }
+        
+        // Creëer notificatie element
+        const notification = document.createElement('div');
+        notification.classList.add('notification');
+        
+        // Voeg type klasse toe voor verschillende stijlen
+        if (type === 'error') {
+            notification.classList.add('notification-error');
+        } else if (type === 'warning') {
+            notification.classList.add('notification-warning');
+        } else {
+            notification.classList.add('notification-success');
+        }
+        
+        notification.innerHTML = `
+            <p>${message}</p>
+            <button class="notification-close" aria-label="Sluiten"><i class="fas fa-times"></i></button>
+        `;
+        
+        // Voeg notificatie toe aan container
+        notificationContainer.appendChild(notification);
+        
+        // Toon notificatie met een fade-in effect
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        // Verwijder notificatie na 3 seconden
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+        
+        // Event listener voor sluit knop
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
         });
     }
     
@@ -158,12 +265,35 @@ const cart = (function() {
         
         // Product toevoegen aan winkelwagen
         addToCart: function(product, quantity = 1) {
+            // Valideer product
+            if (!product || typeof product !== 'object' || !product.id) {
+                console.error('Invalid product:', product);
+                return cartItems;
+            }
+            
+            // Valideer quantity
+            quantity = parseInt(quantity);
+            if (isNaN(quantity) || quantity <= 0) {
+                quantity = 1;
+            }
+            
+            // Standaard maximale hoeveelheid
+            const maxQuantity = 99;
+            
             // Check of het product al in de winkelwagen zit
             const existingItemIndex = cartItems.findIndex(item => item.id === product.id);
             
             if (existingItemIndex !== -1) {
                 // Update hoeveelheid als product al bestaat
-                cartItems[existingItemIndex].quantity += quantity;
+                cartItems[existingItemIndex].quantity = Math.min(
+                    cartItems[existingItemIndex].quantity + quantity,
+                    maxQuantity
+                );
+                
+                // Toon melding als maximum is bereikt
+                if (cartItems[existingItemIndex].quantity === maxQuantity) {
+                    showNotification(`Maximum aantal van ${maxQuantity} bereikt voor dit product.`, 'warning');
+                }
             } else {
                 // Voeg nieuw product toe
                 cartItems.push({
@@ -171,7 +301,7 @@ const cart = (function() {
                     name: product.name,
                     price: product.price,
                     imageUrl: product.imageUrl,
-                    quantity: quantity
+                    quantity: Math.min(quantity, maxQuantity)
                 });
             }
             
@@ -179,7 +309,7 @@ const cart = (function() {
             saveCart();
             
             // Toon bevestiging
-            this.showNotification(`${product.name} is toegevoegd aan je winkelwagen.`);
+            showNotification(`${product.name} is toegevoegd aan je winkelwagen.`);
             
             return cartItems;
         },
@@ -208,9 +338,17 @@ const cart = (function() {
             const itemIndex = cartItems.findIndex(item => item.id === productId);
             
             if (itemIndex !== -1) {
-                cartItems[itemIndex].quantity++;
-                calculateTotal();
-                saveCart();
+                // Maximale hoeveelheid
+                const maxQuantity = 99;
+                
+                if (cartItems[itemIndex].quantity < maxQuantity) {
+                    cartItems[itemIndex].quantity++;
+                    calculateTotal();
+                    saveCart();
+                } else {
+                    // Toon melding als maximum is bereikt
+                    showNotification(`Maximum aantal van ${maxQuantity} bereikt voor dit product.`, 'warning');
+                }
             }
             
             return cartItems;
@@ -221,9 +359,15 @@ const cart = (function() {
             const itemIndex = cartItems.findIndex(item => item.id === productId);
             
             if (itemIndex !== -1) {
+                // Sla naam op voor de notificatie
+                const productName = cartItems[itemIndex].name;
+                
                 cartItems.splice(itemIndex, 1);
                 calculateTotal();
                 saveCart();
+                
+                // Toon bevestiging
+                showNotification(`${productName} is verwijderd uit je winkelwagen.`);
             }
             
             return cartItems;
@@ -234,6 +378,9 @@ const cart = (function() {
             cartItems = [];
             cartTotal = 0;
             saveCart();
+            
+            // Toon bevestiging
+            showNotification('Je winkelwagen is leeggemaakt.');
             
             // Als we op de cart pagina zijn, update de weergave
             if (window.location.pathname.includes('cart.html')) {
@@ -257,47 +404,8 @@ const cart = (function() {
         },
         
         // Notificatie tonen
-        showNotification: function(message) {
-            // Check of notificatie container bestaat, zo niet, maak deze aan
-            let notificationContainer = document.querySelector('.notification-container');
-            
-            if (!notificationContainer) {
-                notificationContainer = document.createElement('div');
-                notificationContainer.classList.add('notification-container');
-                document.body.appendChild(notificationContainer);
-            }
-            
-            // Creëer notificatie element
-            const notification = document.createElement('div');
-            notification.classList.add('notification');
-            notification.innerHTML = `
-                <p>${message}</p>
-                <button class="notification-close"><i class="fas fa-times"></i></button>
-            `;
-            
-            // Voeg notificatie toe aan container
-            notificationContainer.appendChild(notification);
-            
-            // Toon notificatie met een fade-in effect
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            // Verwijder notificatie na 3 seconden
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            }, 3000);
-            
-            // Event listener voor sluit knop
-            notification.querySelector('.notification-close').addEventListener('click', () => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.remove();
-                }, 300);
-            });
+        showNotification: function(message, type = 'success') {
+            showNotification(message, type);
         }
     };
 })();
@@ -342,6 +450,16 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Redirect naar login pagina met redirect parameter
                 window.location.href = `login.html?redirect=checkout`;
+            }
+        });
+    }
+    
+    // Event listener voor "winkelwagen leegmaken" knop
+    const clearCartButton = document.getElementById('clear-cart-button');
+    if (clearCartButton) {
+        clearCartButton.addEventListener('click', function() {
+            if (confirm('Weet je zeker dat je de winkelwagen wilt leegmaken?')) {
+                cart.clearCart();
             }
         });
     }

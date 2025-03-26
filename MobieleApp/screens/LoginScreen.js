@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   StyleSheet,
   View,
@@ -12,33 +12,58 @@ import {
 } from 'react-native';
 import Button from '../components/Button';
 import authService from '../services/authService';
+import { AuthContext } from '../navigation/AppNavigator';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  // Gebruik AuthContext voor login status
+  const { login } = useContext(AuthContext);
+
+  const validateForm = () => {
+    if (!email || !password) {
+      setErrorMessage('Vul a.u.b. je e-mailadres en wachtwoord in.');
+      return false;
+    }
+    
+    // Eenvoudige e-mail validatie
+    const emailRegex = /\S+@\S+\.\S+/;
+    if (!emailRegex.test(email)) {
+      setErrorMessage('Voer een geldig e-mailadres in.');
+      return false;
+    }
+    
+    return true;
+  };
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Fout', 'Vul a.u.b. je e-mailadres en wachtwoord in.');
+    // Reset error message
+    setErrorMessage('');
+    
+    // Valideer invoer
+    if (!validateForm()) {
       return;
     }
 
     try {
       setLoading(true);
-      const user = await authService.login(email, password);
+      await authService.login(email, password);
       
-      // Navigeer naar de homescreen na succesvol inloggen
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
+      // Update de globale auth state
+      await login();
     } catch (error) {
-      Alert.alert(
-        'Inloggen mislukt',
-        'Controleer je e-mailadres en wachtwoord en probeer het opnieuw.'
-      );
-      console.error(error);
+      // Toon duidelijke foutmelding
+      if (error.status === 401) {
+        setErrorMessage('Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord.');
+      } else if (error.message) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Er is een fout opgetreden tijdens het inloggen. Probeer het later opnieuw.');
+      }
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
@@ -57,6 +82,12 @@ const LoginScreen = ({ navigation }) => {
             Log in bij je Yilmaz Voeding account
           </Text>
 
+          {errorMessage ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>E-mailadres</Text>
             <TextInput
@@ -66,6 +97,8 @@ const LoginScreen = ({ navigation }) => {
               placeholder="E-mailadres"
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCompleteType="email"
+              textContentType="emailAddress"
             />
           </View>
 
@@ -77,6 +110,8 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               placeholder="Wachtwoord"
               secureTextEntry
+              autoCompleteType="password"
+              textContentType="password"
             />
           </View>
 
@@ -122,6 +157,16 @@ const styles = StyleSheet.create({
     color: '#666666',
     marginBottom: 24,
     textAlign: 'center',
+  },
+  errorContainer: {
+    backgroundColor: '#FFEBEE',
+    borderRadius: 4,
+    padding: 12,
+    marginBottom: 20,
+  },
+  errorText: {
+    color: '#E63946',
+    fontSize: 14,
   },
   inputContainer: {
     marginBottom: 16,
