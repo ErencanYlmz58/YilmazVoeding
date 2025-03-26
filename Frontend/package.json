@@ -1,0 +1,11 @@
+{
+  "name": "yilmazvoeding-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

@@ -4,7 +4,7 @@ const getApiUrl = () => {
     
     // Lokale ontwikkeling
     if (host === 'localhost' || host === '127.0.0.1') {
-      return 'http://localhost:5000/api';
+      return 'https://localhost:54645/api';
     }
     
     // Test omgeving
