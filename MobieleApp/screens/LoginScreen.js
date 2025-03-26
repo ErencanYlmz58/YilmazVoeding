@@ -24,14 +24,18 @@ const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext);
 
   const validateForm = () => {
-    if (!email || !password) {
+    // Reset vorige foutmelding
+    setErrorMessage('');
+
+    // Controleer of alle velden zijn ingevuld
+    if (!email.trim() || !password.trim()) {
       setErrorMessage('Vul a.u.b. je e-mailadres en wachtwoord in.');
       return false;
     }
     
-    // Eenvoudige e-mail validatie
-    const emailRegex = /\S+@\S+\.\S+/;
-    if (!emailRegex.test(email)) {
+    // Geavanceerde e-mail validatie
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
       setErrorMessage('Voer een geldig e-mailadres in.');
       return false;
     }
@@ -40,30 +44,37 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleLogin = async () => {
-    // Reset error message
-    setErrorMessage('');
-    
-    // Valideer invoer
+    // Valideer formulier
     if (!validateForm()) {
       return;
     }
 
     try {
       setLoading(true);
-      await authService.login(email, password);
+      
+      // Probeer in te loggen
+      await authService.login(email.trim(), password.trim());
       
       // Update de globale auth state
       await login();
     } catch (error) {
-      // Toon duidelijke foutmelding
-      if (error.status === 401) {
-        setErrorMessage('Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord.');
-      } else if (error.message) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage('Er is een fout opgetreden tijdens het inloggen. Probeer het later opnieuw.');
-      }
+      // Gedetailleerde foutafhandeling
       console.error('Login error:', error);
+
+      // Specifieke foutmeldingen
+      const errorMessages = {
+        401: 'Ongeldige inloggegevens. Controleer je e-mailadres en wachtwoord.',
+        404: 'Gebruiker niet gevonden.',
+        500: 'Serverfout. Probeer het later opnieuw.'
+      };
+
+      // Kies de juiste foutmelding
+      const defaultMessage = 'Er is een fout opgetreden tijdens het inloggen. Probeer het later opnieuw.';
+      setErrorMessage(
+        errorMessages[error.status] || 
+        error.message || 
+        defaultMessage
+      );
     } finally {
       setLoading(false);
     }
@@ -75,7 +86,10 @@ const LoginScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : null}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled" // Voorkom dat toetsenbord verdwijnt bij tikken
+      >
         <View style={styles.formContainer}>
           <Text style={styles.title}>Inloggen</Text>
           <Text style={styles.subtitle}>
@@ -97,8 +111,8 @@ const LoginScreen = ({ navigation }) => {
               placeholder="E-mailadres"
               keyboardType="email-address"
               autoCapitalize="none"
-              autoCompleteType="email"
-              textContentType="emailAddress"
+              autoCorrect={false}
+              returnKeyType="next"
             />
           </View>
 
@@ -110,8 +124,10 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               placeholder="Wachtwoord"
               secureTextEntry
-              autoCompleteType="password"
-              textContentType="password"
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
             />
           </View>
 
@@ -120,6 +136,7 @@ const LoginScreen = ({ navigation }) => {
             onPress={handleLogin}
             style={styles.loginButton}
             loading={loading}
+            disabled={loading}
           />
 
           <View style={styles.registerContainer}>

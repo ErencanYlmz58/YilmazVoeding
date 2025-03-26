@@ -4,13 +4,11 @@ import Constants from 'expo-constants';
 
 // Basis URL voor API requests - dynamisch o.b.v. environment
 const getApiUrl = () => {
-  // Voor publicatie: gebruik de productie URL
-  // Voor development: gebruik localhost met de juiste poort
   if (__DEV__) {
-    // Gebruik verschillende URLs voor iOS en Android in development
+    // Gebruik de juiste poort en protocol
     return Platform.OS === 'ios' 
-      ? 'http://localhost:5000/api'
-      : 'http://10.0.2.2:5000/api'; // Android emulator gebruikt 10.0.2.2 voor localhost
+      ? 'https://localhost:54645/api'
+      : 'https://10.0.2.2:54645/api'; 
   }
   return 'https://api.yilmazvoeding.com/api'; // Productie URL
 };
@@ -24,6 +22,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+   // SSL-verificatie uitschakelen voor development
+   httpsAgent: new https.Agent({  
+    rejectUnauthorized: false
+  }),
 });
 
 // Interceptor voor auth tokens toevoegen aan requests
